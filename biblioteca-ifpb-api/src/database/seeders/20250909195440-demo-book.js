@@ -3,7 +3,7 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up (queryInterface, Sequelize) {
-    await queryInterface.bulkInsert('Book', [
+    await queryInterface.bulkInsert('books', [
       {
         title: 'O Pequeno Príncipe',
         author: 'Antoine de Saint-Exupéry',
@@ -88,6 +88,6 @@ module.exports = {
   },
 
   async down (queryInterface, Sequelize) {
-    await queryInterface.bulkDelete('Book', null, {});
+    await queryInterface.bulkDelete('books', null, {});
   }
 };

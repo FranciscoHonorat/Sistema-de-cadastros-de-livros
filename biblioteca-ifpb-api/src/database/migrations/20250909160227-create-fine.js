@@ -2,7 +2,7 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('Fine', {
+    await queryInterface.createTable('fines', { // Mudei para 'fines'
       id: {
         allowNull: false,
         autoIncrement: true,
@@ -13,7 +13,7 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: 'Loans',
+          model: 'loans', // Mudei para 'loans'
           key: 'id'
         }
       },
@@ -34,6 +34,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('Fine');
+    await queryInterface.dropTable('fines'); // Mudei para 'fines'
   }
 };

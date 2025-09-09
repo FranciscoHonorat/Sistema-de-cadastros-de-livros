@@ -2,7 +2,7 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('Book', {
+    await queryInterface.createTable('books', { // Mudei para 'books'
       id: {
         allowNull: false,
         autoIncrement: true,
@@ -33,7 +33,8 @@ module.exports = {
       },
       available: {
         type: Sequelize.BOOLEAN,
-        defaultValue: true
+        defaultValue: true,
+        allowNull: false
       },
       createdAt: {
         allowNull: false,
@@ -46,6 +47,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('Book');
+    await queryInterface.dropTable('books'); // Mudei para 'books'
   }
 };

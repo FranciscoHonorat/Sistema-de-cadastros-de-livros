@@ -5,7 +5,7 @@
     "database": "database_development",
     "host": "127.0.0.1",
     "dialect": "sqlite",
-    "storage": "./src/database/storage/database.sqlite"
+    "storage": "src/database/storage/database.sqlite"
   },
   "test": {
     "username": "root",
