@@ -9,10 +9,10 @@ const app = express();
 app.use(bodyParser.json());
 
 //rotas
-app.use('/api/user', require('./routes/usuario'));
-app.use('/api/livro', require('./routes/livro'));
-app.use('/api/loans', require('./routes/loans'));
-app.use('/api/admim', require('./routes/admin'));
+app.use('/api/user', require('./routes/authRoute'));
+app.use('/api/livro', require('./routes/bookRoute'));
+app.use('/api/loans', require('./routes/loansRoute'));
+app.use('/api/admim', require('./routes/adminRoute'));
 
 //Configuração do Swagger
 const options = {
