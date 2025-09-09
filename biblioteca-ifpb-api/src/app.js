@@ -7,12 +7,10 @@ const app = express();
 
 //middLeware
 app.use(bodyParser.json());
+app.use(express.json());
 
 //rotas
-app.use('/api/user', require('./routes/authRoute'));
-app.use('/api/livro', require('./routes/bookRoute'));
-app.use('/api/loans', require('./routes/loansRoute'));
-app.use('/api/admim', require('./routes/adminRoute'));
+app.use('/api', require('./routes'));
 
 //Configuração do Swagger
 const options = {
@@ -27,9 +25,6 @@ const options = {
 };
 
 const specs = swaggerJsdoc(options);
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
+app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(specs));
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
+module.exports = app;

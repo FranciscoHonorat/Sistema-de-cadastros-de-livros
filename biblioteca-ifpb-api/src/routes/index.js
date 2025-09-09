@@ -1,15 +1,9 @@
 const express = require('express');
-const auths = require('./authRoute.js');
-const books = require('./bookRoute.js');
-const admin = require('./adminRoute.js');
-const loans = require('./loansRoute.js');
+const router = express.Router();
 
-module.exports = app => {
-    app.use(
-        express.json(),
-        auths,
-        books,
-        admin,
-        loans
-    );
-};
+router.use('/books', require('./bookRoute'));
+router.use('/loans', require('./loansRoute'));
+router.use('/admin', require('./adminRoute'));
+router.use('/auth', require('./authRoute'));
+
+module.exports = router;
