@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Biblioteca IFPB</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <div class="logo">Biblioteca IFPB</div>
+        <div class="auth-buttons">
+            <button id="loginBtn" class="btn-secondary">Login</button>
+            <button id="registerBtn" class="btn-primary">Registrar</button>
+            <button id="logoutBtn" class="btn-danger" style="display: none;">Sair</button>
+        </div>
+    </header>
+
+    <div class="container">
+        <div id="alertsContainer"></div>
+        
+        <div id="publicSection">
+            <h1>Bem-vindo à Biblioteca IFPB</h1>
+            <p>Consulte nosso acervo de livros e faça empréstimos online.</p>
+            
+            <div class="books-grid" id="booksList">
+                <!-- Livros serão carregados aqui -->
+            </div>
+        </div>
+        
+        <div id="privateSection" style="display: none;">
+            <h1>Minha Área</h1>
+            
+            <div class="navbar">
+                <div class="nav-item active" data-target="books">Catálogo de Livros</div>
+                <div class="nav-item" data-target="myLoans">Meus Empréstimos</div>
+                <div class="nav-item" data-target="myFines">Minhas Multas</div>
+                <div class="nav-item" data-target="adminPanel" id="adminNav" style="display: none;">Painel Admin</div>
+            </div>
+            
+            <div class="section active" id="booksSection">
+                <div class="books-grid" id="userBooksList">
+                    <!-- Livros serão carregados aqui -->
+                </div>
+            </div>
+            
+            <div class="section" id="myLoansSection">
+                <div class="dashboard-section">
+                    <h2>Meus Empréstimos Ativos</h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Livro</th>
+                                <th>Data de Empréstimo</th>
+                                <th>Data de Devolução</th>
+                                <th>Status</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="loansList">
+                            <!-- Empréstimos serão carregados aqui -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="section" id="myFinesSection">
+                <div class="dashboard-section">
+                    <h2>Minhas Multas</h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Valor</th>
+                                <th>Empréstimo</th>
+                                <th>Status</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="finesList">
+                            <!-- Multas serão carregados aqui -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="section" id="adminPanelSection">
+                <div class="dashboard-section">
+                    <h2>Gerenciar Livros</h2>
+                    <button id="addBookBtn" class="btn-primary">Adicionar Livro</button>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Título</th>
+                                <th>Autor</th>
+                                <th>Categoria</th>
+                                <th>Status</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminBooksList">
+                            <!-- Livros para admin serão carregados aqui -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="dashboard-section">
+                    <h2>Gerenciar Empréstimos</h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Usuário</th>
+                                <th>Livro</th>
+                                <th>Data de Empréstimo</th>
+                                <th>Data de Devolução</th>
+                                <th>Status</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminLoansList">
+                            <!-- Empréstimos para admin serão carregados aqui -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Login -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <h2>Login</h2>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="loginEmail">Email</label>
+                    <input type="email" id="loginEmail" required>
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">Senha</label>
+                    <input type="password" id="loginPassword" required>
+                </div>
+                <button type="submit" class="btn-primary">Entrar</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal de Registro -->
+    <div id="registerModal" class="modal">
+        <div class="modal-content">
+            <h2>Registrar</h2>
+            <form id="registerForm">
+                <div class="form-group">
+                    <label for="registerName">Nome</label>
+                    <input type="text" id="registerName" required>
+                </div>
+                <div class="form-group">
+                    <label for="registerEmail">Email</label>
+                    <input type="email" id="registerEmail" required>
+                </div>
+                <div class="form-group">
+                    <label for="registerPassword">Senha</label>
+                    <input type="password" id="registerPassword" required>
+                </div>
+                <div class="form-group">
+                    <label for="registerStudentId">ID do Aluno</label>
+                    <input type="text" id="registerStudentId" required>
+                </div>
+                <button type="submit" class="btn-primary">Registrar</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal de Adicionar Livro (Admin) -->
+    <div id="addBookModal" class="modal">
+        <div class="modal-content">
+            <h2>Adicionar Livro</h2>
+            <form id="addBookForm">
+                <div class="form-group">
+                    <label for="bookTitle">Título</label>
+                    <input type="text" id="bookTitle" required>
+                </div>
+                <div class="form-group">
+                    <label for="bookAuthor">Autor</label>
+                    <input type="text" id="bookAuthor" required>
+                </div>
+                <div class="form-group">
+                    <label for="bookPublisher">Editora</label>
+                    <input type="text" id="bookPublisher" required>
+                </div>
+                <div class="form-group">
+                    <label for="bookCategory">Categoria</label>
+                    <input type="text" id="bookCategory" required>
+                </div>
+                <div class="form-group">
+                    <label for="bookVersion">Versão</label>
+                    <input type="text" id="bookVersion" value="1.0">
+                </div>
+                <button type="submit" class="btn-primary">Adicionar</button>
+            </form>
+        </div>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>
