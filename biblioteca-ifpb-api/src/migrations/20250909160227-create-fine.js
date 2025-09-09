@@ -2,21 +2,23 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('Loans', {
+    await queryInterface.createTable('Fines', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      loanDate: {
-        type: Sequelize.DATE
+      loanId: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: {
+          model: 'Loans',
+          key: 'id'
+        }
       },
-      dueDate: {
-        type: Sequelize.DATE
-      },
-      returnDate: {
-        type: Sequelize.DATE
+      amount: {
+        type: Sequelize.FLOAT
       },
       status: {
         type: Sequelize.STRING
@@ -32,6 +34,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('Loans');
+    await queryInterface.dropTable('Fines');
   }
 };
