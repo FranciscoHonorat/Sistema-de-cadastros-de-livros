@@ -1,31 +1,28 @@
+'use strict';
+const {
+  Model
+} = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
-    const Book = sequelize.define('Book', {
-        id: {
-            type: DataTypes.INTEGER,
-            primaryKey: true,
-            autoIncrement: true
-        },
-        titulo: {
-            type: DataTypes.STRING,
-            allowNull: false
-        },
-        autor: {
-            type: DataTypes.STRING,
-            allowNull: false
-        },
-        Publicacao: {
-            type: DataTypes.DATE,
-            allowNull: false
-        },
-        genero: {
-            type: DataTypes.STRING,
-            allowNull: false
-        },
-        status: {
-            type: DataTypes.ENUM('disponivel', 'indisponivel'),
-            defaultValue: 'disponivel'
-        }
-    });
-
-    return Book;
-}
+  class Book extends Model {
+    /**
+     * Helper method for defining associations.
+     * This method is not a part of Sequelize lifecycle.
+     * The `models/index` file will call this method automatically.
+     */
+    static associate(models) {
+      // define association here
+    }
+  }
+  Book.init({
+    title: DataTypes.STRING,
+    author: DataTypes.STRING,
+    publisher: DataTypes.STRING,
+    category: DataTypes.STRING,
+    status: DataTypes.STRING,
+    version: DataTypes.STRING
+  }, {
+    sequelize,
+    modelName: 'Book',
+  });
+  return Book;
+};

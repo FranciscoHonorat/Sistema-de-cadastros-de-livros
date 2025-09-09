@@ -1,24 +1,24 @@
-modeule.exports = (sequelize, DataTypes) => {
-    const Fine = sequelize.define('Fine', {
-        id: {
-            type: DataTypes.INTEGER,
-            primaryKey: true,
-            autoIncrement: true
-        },
-        valor: {
-            type: DataTypes.FLOAT,
-            defaultValue: 0.0
-        },
-        status: {
-            type: DataTypes.ENUM('Pendente', 'Pago'),
-            defaultValue: 'Pendente'
-        }
-    });
-
-    Fine.associate = (models) => {
-        Fine.beLongsTo(models.Usuario, { foreingKey: 'userId' });
-        Fine.beLongsTo(models.Emprestimo, { foreingKey: 'loanId' });
-    };
-
-    return Fine;
-}
+'use strict';
+const {
+  Model
+} = require('sequelize');
+module.exports = (sequelize, DataTypes) => {
+  class Fine extends Model {
+    /**
+     * Helper method for defining associations.
+     * This method is not a part of Sequelize lifecycle.
+     * The `models/index` file will call this method automatically.
+     */
+    static associate(models) {
+      // define association here
+    }
+  }
+  Fine.init({
+    amount: DataTypes.FLOAT,
+    status: DataTypes.STRING
+  }, {
+    sequelize,
+    modelName: 'Fine',
+  });
+  return Fine;
+};
