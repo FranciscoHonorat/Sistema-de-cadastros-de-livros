@@ -7,43 +7,43 @@ class AuthServices extends Services {
     }
 
     async buscaPorEmail(email) {
-        return dataSource[this.model].findOne({ where: { email }});
+        // Usamos unscoped() para ignorar o defaultScope que exclui a senha
+        return dataSource[this.model].unscoped().findOne({ where: { email } });
     }
 
     async registraUsuario(dadosUsuario) {
-        // Lógica para verificar se já tem usuario usando o mesmo email.
+        // Verifica se o email já existe
         const usuarioExistente = await this.buscaPorEmail(dadosUsuario.email);
         if (usuarioExistente) {
-            throw new Error('Email já está em uso');
+            throw new Error('Email já cadastrado');
         }
 
-        //Verifica se já existe matrícula
-        const matriculaExistente = await dataSource[this.model].findOne({
-            where: { studentId: dadosUsuario.studentId }
+        // Verifica se a matrícula já existe
+        const matriculaExistente = await dataSource[this.model].findOne({ 
+            where: { studentId: dadosUsuario.studentId } 
         });
         if (matriculaExistente) {
-            throw new Error('Matrícula já está em uso');
+            throw new Error('Matrícula já cadastrada');
         }
 
-        //Criar novo usuário
-
+        // Cria o usuário
         return await this.criaRegistro(dadosUsuario);
     }
 
     async login(email, senha) {
-        // Busca usuário
+        // Busca usuário pelo email (incluindo a senha)
         const usuario = await this.buscaPorEmail(email);
         if (!usuario) {
             throw new Error('Usuário não encontrado');
         }
 
-        // Verifica senha
+        // Verifica a senha
         const senhaValida = await usuario.checkPassword(senha);
         if (!senhaValida) {
-            throw new Error('Senha inválida');
+            throw new Error('Senha incorreta');
         }
 
-        // Remover a senha do objeto de retorno
+        // Remove a senha do objeto de retorno
         const usuarioSemSenha = { ...usuario.toJSON() };
         delete usuarioSemSenha.password;
 

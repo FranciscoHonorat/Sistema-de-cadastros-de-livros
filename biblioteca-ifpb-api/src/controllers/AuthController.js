@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const AuthServices = require('../services/AuthServices');
+const AuthServices = require('../services/AuthServices.js');
 const authServices = new AuthServices();
 
 class AuthController {
@@ -53,7 +53,7 @@ class AuthController {
 
             const usuario = await authServices.login(email, password);
             const token = jwt.sign(
-                { id: user.id, email: user.email },
+                { id: usuario.id, email: usuario.email },
                 process.env.JWT_SECRET || 'fallback_secret',
                 { expiresIn: '24h' } // Token expira em 24 horas
             );
@@ -72,6 +72,25 @@ class AuthController {
             return res.status(500).json({ error: error.message});
         }
     }
+
+    static async resetPassword(req, res) {
+        const { email, newPassword } = req.body;
+        
+        try {
+            const user = await authServices.buscaPorEmail(email);
+            if (!user) {
+            return res.status(404).json({ error: 'Usuário não encontrado' });
+            }
+            
+            // Atualiza a senha (o hook beforeUpdate fará o hash)
+            user.password = newPassword;
+            await user.save();
+            
+            return res.status(200).json({ message: 'Senha resetada com sucesso' });
+        } catch (error) {
+            return res.status(500).json({ error: error.message });
+        }
+    }  
 
     //Obter perfil do usuário autenticado
     static async pegarUsuario(req, res) {
