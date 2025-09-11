@@ -20,9 +20,36 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   Fine.init({
-    amount: DataTypes.FLOAT,
-    status: DataTypes.STRING
-  }, {
+    amount: {
+      type: DataTypes.FLOAT,
+      allowNull: false,
+      validate: {
+        notNull: { msg: 'A multa precisa ter um valor'},
+        isFloat: { msg: 'O valor da multa deve ser um número válido'},
+        min: {
+          args: [0],
+          msg: 'O valor da multa não pode ser negativo'
+        },
+        max: {
+          args: [1000],
+          msg: 'O valor da multa não pode ser maior que o valor do livro'
+        }
+      }
+    },
+    status: {
+      type: DataTypes.ENUM('unpaid', 'paid'),
+      allowNull: false,
+      defaultValue: 'unpaid',
+      validate: {
+        isIn: {
+          args: [['unpaid', 'paid']],
+          msg: 'Status inválido. Deve ser "unpaid" ou "paid"'
+        },
+        notNull: { msg: 'A multa precisa ter um status'
+      }
+    }
+  }
+}, {
     sequelize,
     modelName: 'Fine',
     tableName: 'fines',
