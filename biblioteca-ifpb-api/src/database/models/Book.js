@@ -39,7 +39,7 @@ module.exports = (sequelize, DataTypes) => {
 
     },
     publisher: {
-      type: DataTypes.DATE,
+      type: DataTypes.STRING,
       allowNull: false,
       validate: {
         notNull: { msg: 'O livro precisa ter uma data de publicação'},

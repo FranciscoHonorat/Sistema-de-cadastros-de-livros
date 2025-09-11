@@ -24,6 +24,16 @@ module.exports = (sequelize, DataTypes) => {
       return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     }
   }
+
+  /*
+  Loan.js - Conflito entre hooks e validações
+Problema: O hook beforeCreate define dueDate se não for fornecido, mas a validação isAfterLoanDate exige que dueDate seja posterior a loanDate.
+ Como o hook roda após as validações, a validação pode falhar se dueDate não for passado.
+
+Efeito: Ao criar um empréstimo sem dueDate, a validação será executada antes do hook, resultando em erro.
+
+Sugestão: Pense em como garantir que dueDate seja definido antes das validações. Pesquise sobre hooks beforeValidate no Sequelize.
+  */
   
   Loan.init({
     id: {
@@ -62,6 +72,7 @@ module.exports = (sequelize, DataTypes) => {
           msg: 'Data de devolução deve ser uma data válida'
         },
         isAfterLoanDate(value) {
+          if (value === null) return; 
           if (value && new Date(value) <= new Date(this.loanDate)) {
             throw new Error('Data de devolução deve ser após a data de empréstimo');
           }

@@ -32,7 +32,7 @@ module.exports = (sequelize, DataTypes) => {
         },
         max: {
           args: [1000],
-          msg: 'O valor da multa não pode ser maior que o valor do livro'
+          msg: 'O valor da multa não pode ser maior que 1000'
         }
       }
     },
@@ -44,9 +44,9 @@ module.exports = (sequelize, DataTypes) => {
         isIn: {
           args: [['unpaid', 'paid']],
           msg: 'Status inválido. Deve ser "unpaid" ou "paid"'
-        },
-        notNull: { msg: 'A multa precisa ter um status'
-      }
+        }
+      },
+      notNull: { msg: 'A multa precisa ter um status'
     }
   }
 }, {

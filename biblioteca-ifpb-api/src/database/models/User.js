@@ -66,7 +66,13 @@ module.exports = (sequelize, DataTypes) => {
     role: {
       type: DataTypes.ENUM('user', 'admin'),
       defaultValue: 'user',
-      allowNull: false
+      allowNull: false,
+      validate: {
+        isIn: {
+          args: [['user', 'admin']],
+          msg: 'Função deve ser user ou admin'
+        }
+      }
     },
     studentId: {
       type: DataTypes.STRING,
