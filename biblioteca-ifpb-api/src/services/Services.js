@@ -29,19 +29,24 @@ class Services {
     return dataSource[this.model].create(dadosDoRegistro);
   }
 
-  async atualizaRegistro(dadosAtualizados, where, transacao = {}) {
-    const listaDeRegistrosAtualizados = await dataSource[this.model].update(
-      dadosAtualizados,
-      {
-        where: { ...where },
-        transaction: transacao,
-      }
-    );
-    if (listaDeRegistrosAtualizados[0] === 0) {
-      return false;
-    }
-    return true;
+async atualizaRegistro(dadosAtualizados, where, transacao = {}) {
+  // Verifica se where está vazio para prevenir atualizações acidentais em toda a tabela
+  if (Object.keys(where).length === 0) {
+    throw new Error('Condições de atualização não fornecidas');
   }
+  
+  const listaDeRegistrosAtualizados = await dataSource[this.model].update(
+    dadosAtualizados,
+    {
+      where: { ...where },
+      transaction: transacao,
+    }
+  );
+  if (listaDeRegistrosAtualizados[0] === 0) {
+    return false;
+  }
+  return true;
+}
 
   async excluiRegistro(where) {
     return dataSource[this.model].destroy({ where: { ...where } });
