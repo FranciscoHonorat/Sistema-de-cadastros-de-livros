@@ -12,7 +12,7 @@ class AuthController {
                 return res.status(400).json({
                     error: 'Todos os campos são obrigatórios!'
                 });
-            }
+            };
 
             const novoUsuario = await authServices.registraUsuario({
                 name,
@@ -31,47 +31,48 @@ class AuthController {
                 usuario: usuarioResponse
             });
         } catch (error) {
+            console.error("Erro no registro:", error.message, error.stack);
             if (error.message === 'Email já está em uso' ||
                 error.message === 'Matrícula já está em uso') {
                     return res.status(409).json({ error: error.message });
-                }
+            };
             
-            return res.status(500).json({ error: 'Erro ao registrar usuário' });
+            return res.status(500).json({ error: error.message });
         }
     }
 
-    static async login(req, res) {
-        const { email, password } = req.body;
+       static async login(req, res) {
+       const { email, password } = req.body;
 
-        try {
-            //Validação dos campos obrigatórios
-            if (!email || !password) {
-                return res.status(400).json({
-                    error: 'Email e senha são obrigatórios!'
-                });
-            }
+       try {
+           //Validação dos campos obrigatórios
+           if (!email || !password) {
+               return res.status(400).json({
+                   error: 'Email e senha são obrigatórios!'
+               });
+           }
 
-            const usuario = await authServices.login(email, password);
-            const token = jwt.sign(
-                { id: usuario.id, email: usuario.email },
-                process.env.JWT_SECRET || 'fallback_secret',
-                { expiresIn: '24h' } // Token expira em 24 horas
-            );
-            return res.status(200).json({
-                message: 'Login realizado com sucesso',
-                usuario,
-                token: token
-            });
-        } catch (error) {
-            if (error.message === 'Usuário não encontrado' ||
-                error.message === 'Senha incorreta'
-            ) {
-                return res.status(401).json({ error: 'Credenciais inválidas'});
-            }
+           const usuario = await authServices.login(email, password);
+           const token = jwt.sign(
+               { id: usuario.id, email: usuario.email },
+               process.env.JWT_SECRET || 'fallback_secret',
+               { expiresIn: '24h' } // Token expira em 24 horas
+           );
+           return res.status(200).json({
+               message: 'Login realizado com sucesso',
+               usuario,
+               token: token
+           });
+       } catch (error) {
+           if (error.message === 'Usuário não encontrado' ||
+               error.message === 'Senha incorreta'
+           ) {
+               return res.status(401).json({ error: 'Credenciais inválidas'});
+           }
 
-            return res.status(500).json({ error: error.message});
-        }
-    }
+           return res.status(500).json({ error: error.message});
+       }
+   }
 
     static async resetPassword(req, res) {
         const { email, newPassword } = req.body;
@@ -80,7 +81,7 @@ class AuthController {
             const user = await authServices.buscaPorEmail(email);
             if (!user) {
             return res.status(404).json({ error: 'Usuário não encontrado' });
-            }
+            };
             
             // Atualiza a senha (o hook beforeUpdate fará o hash)
             user.password = newPassword;
@@ -118,7 +119,7 @@ class AuthController {
                 if (usuarioComEmail && usuarioComEmail.id !== req.userId) {
                     return res.status(409).json({ error: 'Email já está em uso'});
                 }
-            }
+            };
 
             const atualizado = await authServices.atualizaRegistro(
                 { name, email }, { id: req.userId }
@@ -126,7 +127,7 @@ class AuthController {
 
             if (!atualizado) {
                 return res.status(400).json({ error: 'Não foi possível atualizar o perfil'});
-            }
+            };
 
             return res.status(200).json({ message: 'Perfil atualizado com sucesso'});
         } catch (error) {
