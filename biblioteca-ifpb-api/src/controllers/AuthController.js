@@ -1,47 +1,10 @@
 const jwt = require('jsonwebtoken');
 const AuthServices = require('../services/AuthServices.js');
 const authServices = new AuthServices();
+exports.authServices = authServices;
 
 class AuthController {
-    static async registraUsuario(req, res) {
-        const { name ,email, password, studentId } = req.body;
-
-        try {
-            //validação dos campos obrigatórios
-            if (!name || !email || !password || !studentId) {
-                return res.status(400).json({
-                    error: 'Todos os campos são obrigatórios!'
-                });
-            };
-
-            const novoUsuario = await authServices.registraUsuario({
-                name,
-                email,
-                password,
-                studentId,
-                role: 'user' // definição do papel padrão como 'user'
-            });
-
-            //Removendo senha da resposta!
-            const usuarioResponse = { ...novoUsuario.toJSON() };
-            delete usuarioResponse.password;
-
-            return res.status(201).json({
-                message: 'Usuário registrado com sucesso!',
-                usuario: usuarioResponse
-            });
-        } catch (error) {
-            console.error("Erro no registro:", error.message, error.stack);
-            if (error.message === 'Email já está em uso' ||
-                error.message === 'Matrícula já está em uso') {
-                    return res.status(409).json({ error: error.message });
-            };
-            
-            return res.status(500).json({ error: error.message });
-        }
-    }
-
-       static async login(req, res) {
+    static async login(req, res) {
        const { email, password } = req.body;
 
        try {
@@ -93,47 +56,6 @@ class AuthController {
         }
     }  
 
-    //Obter perfil do usuário autenticado
-    static async pegarUsuario(req, res) {
-        try {
-            const usuario = await authServices.pegaUmRegistroPorId(req.userId);
-
-            if (!usuario) {
-                return res.status(404).json({ error: 'Usuario não encontrado'});
-            }
-
-            return res.status(200).json({ usuario });
-        } catch (error) {
-            return res.status(500).json({ error: error.message });
-        }
-    }
-
-    //Atualizar perfil do usuário
-    static async atualizarPerfil(req, res) {
-        const { name, email } = req.body;
-
-        try {
-            //Verificar se o novo email já está em uso por outro usuário:
-            if (email) {
-                const usuarioComEmail = await authServices.buscaPorEmail(email);
-                if (usuarioComEmail && usuarioComEmail.id !== req.userId) {
-                    return res.status(409).json({ error: 'Email já está em uso'});
-                }
-            };
-
-            const atualizado = await authServices.atualizaRegistro(
-                { name, email }, { id: req.userId }
-            );
-
-            if (!atualizado) {
-                return res.status(400).json({ error: 'Não foi possível atualizar o perfil'});
-            };
-
-            return res.status(200).json({ message: 'Perfil atualizado com sucesso'});
-        } catch (error) {
-            return res.status(500).json({ error: error.message });
-        }
-    }
 }
 
 module.exports = AuthController;

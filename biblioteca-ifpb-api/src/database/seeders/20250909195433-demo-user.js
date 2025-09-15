@@ -10,7 +10,7 @@ module.exports = {
       {
         name: 'Admin',
         email: 'admin@ifpb.edu.br',
-        password: 'admin123',
+        password: await bcrypt.hash('admin123', 10),
         role: 'admin',
         createdAt: new Date(),
         updatedAt: new Date()
@@ -26,7 +26,7 @@ module.exports = {
       {
         name: 'Maria Oliveira',
         email: 'maria.oliveira@ifpb.edu.br',
-        password: 'senha123',
+        password: await bcrypt.hash('senha123', 10),
         role: 'user',
         createdAt: new Date(),
         updatedAt: new Date()
@@ -34,7 +34,7 @@ module.exports = {
       {
         name: 'Pedro Santos',
         email: 'pedro.santos@ifpb.edu.br',
-        password: 'senha123',
+        password: await bcrypt.hash('senha123', 10),
         role: 'user',
         createdAt: new Date(),
         updatedAt: new Date()
@@ -42,7 +42,7 @@ module.exports = {
       {
         name: 'Ana Souza',
         email: 'ana.souza@ifpb.edu.br',
-        password: 'senha123',
+        password: await bcrypt.hash('senha123', 10),
         role: 'user',
         createdAt: new Date(),
         updatedAt: new Date()
@@ -50,7 +50,7 @@ module.exports = {
       {
         name: 'Lucas Lima',
         email: 'lucas.lima@ifpb.edu.br',
-        password: 'senha123',
+        password: await bcrypt.hash('senha123', 10),
         role: 'user',
         createdAt: new Date(),
         updatedAt: new Date()
@@ -58,7 +58,7 @@ module.exports = {
       {
         name: 'Carla Mendes',
         email: 'carla.mendes@ifpb.edu.br',
-        password: 'senha123',
+        password: await bcrypt.hash('senha123', 10),
         role: 'user',
         createdAt: new Date(),
         updatedAt: new Date()
@@ -66,7 +66,7 @@ module.exports = {
       {
         name: 'Rafael Costa',
         email: 'rafael.costa@ifpb.edu.br',
-        password: 'senha123',
+        password: await bcrypt.hash('senha123', 10),
         role: 'user',
         createdAt: new Date(),
         updatedAt: new Date()
@@ -74,7 +74,7 @@ module.exports = {
       {
         name: 'Juliana Rocha',
         email: 'juliana.rocha@ifpb.edu.br',
-        password: 'senha123',
+        password: await bcrypt.hash('senha123', 10),
         role: 'user',
         createdAt: new Date(),
         updatedAt: new Date()
@@ -82,7 +82,7 @@ module.exports = {
       {
         name: 'Bruno Martins',
         email: 'bruno.martins@ifpb.edu.br',
-        password: 'senha123',
+        password: await bcrypt.hash('senha123', 10),
         role: 'user',
         createdAt: new Date(),
         updatedAt: new Date()
@@ -90,7 +90,7 @@ module.exports = {
       {
         name: 'Fernanda Alves',
         email: 'fernanda.alves@ifpb.edu.br',
-        password: 'senha123',
+        password: await bcrypt.hash('senha123', 10),
         role: 'user',
         createdAt: new Date(),
         updatedAt: new Date()
@@ -98,7 +98,7 @@ module.exports = {
       {
         name: 'Gabriel Ferreira',
         email: 'gabriel.ferreira@ifpb.edu.br',
-        password: 'senha123',
+        password: await bcrypt.hash('senha123', 10),
         role: 'user',
         createdAt: new Date(),
         updatedAt: new Date()
@@ -106,7 +106,7 @@ module.exports = {
       {
         name: 'Patrícia Dias',
         email: 'patricia.dias@ifpb.edu.br',
-        password: 'senha123',
+        password: await bcrypt.hash('senha123', 10),
         role: 'user',
         createdAt: new Date(),
         updatedAt: new Date()
@@ -114,7 +114,7 @@ module.exports = {
       {
         name: 'Rodrigo Nunes',
         email: 'rodrigo.nunes@ifpb.edu.br',
-        password: 'senha123',
+        password: await bcrypt.hash('senha123', 10),
         role: 'user',
         createdAt: new Date(),
         updatedAt: new Date()
@@ -122,7 +122,7 @@ module.exports = {
       {
         name: 'Camila Teixeira',
         email: 'camila.teixeira@ifpb.edu.br',
-        password: 'senha123',
+        password: await bcrypt.hash('senha123', 10),
         role: 'user',
         createdAt: new Date(),
         updatedAt: new Date()
@@ -130,7 +130,7 @@ module.exports = {
       {
         name: 'Vinícius Barros',
         email: 'vinicius.barros@ifpb.edu.br',
-        password: 'senha123',
+        password: await bcrypt.hash('senha123', 10),
         role: 'user',
         createdAt: new Date(),
         updatedAt: new Date()
@@ -138,7 +138,7 @@ module.exports = {
       {
         name: 'Larissa Gomes',
         email: 'larissa.gomes@ifpb.edu.br',
-        password: 'senha123',
+        password: await bcrypt.hash('senha123', 10),
         role: 'user',
         createdAt: new Date(),
         updatedAt: new Date()
@@ -146,7 +146,7 @@ module.exports = {
       {
         name: 'Thiago Pinto',
         email: 'thiago.pinto@ifpb.edu.br',
-        password: 'senha123',
+        password: await bcrypt.hash('senha123', 10),
         role: 'user',
         createdAt: new Date(),
         updatedAt: new Date()
@@ -154,7 +154,7 @@ module.exports = {
       {
         name: 'Aline Ribeiro',
         email: 'aline.ribeiro@ifpb.edu.br',
-        password: 'senha123',
+        password: await bcrypt.hash('senha123', 10),
         role: 'user',
         createdAt: new Date(),
         updatedAt: new Date()
@@ -162,7 +162,7 @@ module.exports = {
       {
         name: 'Eduardo Cardoso',
         email: 'eduardo.cardoso@ifpb.edu.br',
-        password: 'senha123',
+        password: await bcrypt.hash('senha123', 10),
         role: 'user',
         createdAt: new Date(),
         updatedAt: new Date()
