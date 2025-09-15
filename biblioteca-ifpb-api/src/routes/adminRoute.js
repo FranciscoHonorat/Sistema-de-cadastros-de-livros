@@ -5,9 +5,9 @@ const { authenticateToken, requireAdmin } = require('../middLeware/auth.js');
 const AdminController = require('../controllers/AdminController.js');
 
 // Rotas protegidas
-router.get('/profile', authenticateToken, AdminController.pegarUsuario);
+router.get('/profile/:id', authenticateToken, AdminController.pegarUsuario);
 router.post('/register', AdminController.registraUsuario);
-router.put('/profile', authenticateToken, AdminController.atualizarPerfil);
+router.put('/profile/:id', authenticateToken, AdminController.atualizarPerfil);
 
 // Rotas administrativas
 router.get('/users', authenticateToken, requireAdmin, async (req, res) => {

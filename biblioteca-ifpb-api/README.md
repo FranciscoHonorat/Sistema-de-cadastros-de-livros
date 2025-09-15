@@ -25,5 +25,92 @@ Tecnologias:
     front end: hmtl5, css3, javascript ou angular ou react
     back end: node.js, express, sqllite, ORM e swagger para documentação da API
     
-    
+    # Biblioteca IFPB API
+
+API para gerenciamento de livros, usuários, empréstimos e multas da Biblioteca IFPB.
+
+## URL Base
+```
+http://localhost:3000/api
+```
+
+## Endpoints Principais
+
+### Autenticação
+#### Login
+- **POST** `/auth/login`
+- **Body:**
+  ```json
+  {
+    "email": "usuario@email.com",
+    "password": "senha"
+  }
+  ```
+- **Resposta de sucesso:**
+  ```json
+  {
+    "token": "jwt_token"
+  }
+  ```
+
+### Livros
+#### Listar livros
+- **GET** `/books`
+- **Resposta:**
+  ```json
+  [
+    {
+      "id": 1,
+      "titulo": "Livro Exemplo",
+      "autor": "Autor"
+    }
+  ]
+  ```
+
+#### Adicionar livro (admin)
+- **POST** `/books`
+- **Headers:**
+  - Authorization: Bearer `token`
+- **Body:**
+  ```json
+  {
+    "titulo": "Novo Livro",
+    "autor": "Autor",
+    "categoria": "Categoria",
+    "editora": "Editora",
+    "versao": "1.0"
+  }
+  ```
+
+### Empréstimos
+#### Listar empréstimos do usuário
+- **GET** `/loans`
+- **Headers:**
+  - Authorization: Bearer `token`
+
+### Multas
+#### Listar multas do usuário
+- **GET** `/fines`
+- **Headers:**
+  - Authorization: Bearer `token`
+
+## Autenticação
+Alguns endpoints exigem autenticação JWT. Envie o token no header:
+```
+Authorization: Bearer seu_token
+```
+
+## Exemplo de uso com fetch
+```js
+fetch('http://localhost:3000/api/books', {
+  headers: { 'Authorization': 'Bearer SEU_TOKEN' }
+})
+  .then(res => res.json())
+  .then(data => console.log(data));
+```
+
+## Observações
+- Para mais detalhes, acesse a documentação Swagger em: `http://localhost:3000/api-docs`
+- Apenas admins podem adicionar livros e gerenciar usuários.
+
 

@@ -1,7 +1,5 @@
 const jwt = require('jsonwebtoken');
 const AuthServices = require('../services/AuthServices.js');
-const jwt = require('jsonwebtoken');
-const { authServices } = require('./AuthController.js');
 const authServices = new AuthServices();
 
 class AdminController {
@@ -51,7 +49,7 @@ class AdminController {
               if (!usuario) {
                   return res.status(404).json({ error: 'Usuario não encontrado'});
               }
-  
+              
               return res.status(200).json({ usuario });
           } catch (error) {
               return res.status(500).json({ error: error.message });
