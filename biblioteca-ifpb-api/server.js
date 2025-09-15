@@ -1,4 +1,3 @@
-// server.js
 const express = require('express');
 const routes = require('./src/routes');
 const { authenticateToken } = require('../biblioteca-ifpb-api/src/middLeware/auth.js');
