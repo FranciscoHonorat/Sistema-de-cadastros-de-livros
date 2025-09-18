@@ -90,7 +90,7 @@ module.exports = (sequelize, DataTypes) => {
     sequelize,
     modelName: 'Book',
     tableName: 'books',
-    paranoid: true,
+    paranoid: false,
   });
   return Book;
 };

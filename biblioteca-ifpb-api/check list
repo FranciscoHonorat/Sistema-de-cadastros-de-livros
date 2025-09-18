@@ -1,0 +1,69 @@
+Infra de chamadas HTTP
+Falta um wrapper central de fetch (tratamento de erro, headers, token).
+Hoje cada chamada (se existir) deve estar solta; padronize.
+Persistência e uso do token JWT
+Após login: salvar token (localStorage).
+Em cada chamada autenticada: enviar Authorization: Bearer <token>.
+Logout: remover token + limpar UI.
+Fluxos principais não implementados no front
+Login funcional (submit já chama /api/auth/login? conferir).
+Listar livros (GET /api/books).
+Filtrar livros (query params: category, author, title, status).
+Criar livro (POST /api/books) (somente admin).
+Atualizar livro (PUT /api/books/:id) (admin).
+Atualizar status (PATCH /api/books/:id/status).
+Deletar livro (DELETE /api/books/:id) (admin).
+Criar empréstimo (POST /api/loans).
+Listar meus empréstimos (GET /api/loans).
+Devolver (PATCH /api/loans/:id/return).
+Listar multas (GET /api/fines) (se a rota existir).
+Estatísticas (GET /api/books/stats) (admin, opcional na UI).
+Gestão de estado/UI
+Mostrar/ocultar áreas protegidas (se logado).
+Exibir nome/role do usuário (se o login retornar isso ou decodificar JWT).
+Tratar loading e mensagens de erro/sucesso.
+Componentizar (mesmo sem React pode modularizar JS em pastas /api /ui).
+Modais e elementos ausentes Verifique se existem contêineres no HTML para:
+Lista de livros (ex: <div id="booksList"></div>)
+Meus empréstimos (<div id="loansList"></div>)
+Minhas multas (<div id="finesList"></div>)
+Feedback global (<div id="feedback"></div>)
+Form de criar livro (apenas admin) (inputs + botão) Se não existem, criar.
+Segurança básica no front
+Esconder botões admin (criar livro, deletar) se não admin.
+(Opcional) Decodificar payload do JWT (atob) para obter role.
+Tratamento de erros centralizado
+Reaproveitar função showMessage ou similar.
+Se resposta 401 → forçar logout.
+Organização recomendada (mesma public/) public/ documento.js (ponto de entrada) api/ http.js auth.js books.js loans.js fines.js ui/ auth.js books.js loans.js fines.js helpers.js
+
+CSS / UX
+
+Estados: loading..., vazio, erro.
+Diferenciar livro emprestado vs disponível.
+Badge de atraso (emprestimo atrasado).
+Indicar multa gerada após devolução (exibir valor se vier no retorno).
+Verificação de alinhamento de rotas
+Backend monta /api no server.js: front deve sempre chamar /api/...
+Confirmar se login está usando /api/auth/login (corrigir se não).
+Loans endpoints: /api/loans, /api/loans/:id/return, /api/loans/admin/overdue (apenas se fizer painel admin).
+Itens provavelmente inexistentes no front (precisa criar)
+Função criarEmpréstimo(bookId).
+Função devolverEmpréstimo(loanId).
+Renderizador de lista de empréstimos.
+Renderizador de multas.
+Botões “Alugar” / “Devolver”.
+Form admin (criar livro).
+Botão “Atualizar status” ou fluxo automático (status volta a Disponível na devolução: já feito no backend, mas front deve refletir).
+Checagem de retorno real do login
+Ver se o AuthController retorna só token ou também user.
+Se só token: decodificar (split('.') → atob(payloadBase64)).
+Se quiser evitar isso: alterar backend para retornar { token, user: { id, name, role } } (opcional).
+Sugestão de passos práticos (execução) Passo 1: Criar api/http.js
+Passo 2: Adaptar login no documento.js para usar esse wrapper
+Passo 3: Criar listagem de livros + render na tela
+Passo 4: Adicionar botão “Alugar” → integrar POST /loans
+Passo 5: Criar painel “Meus empréstimos” + Devolver
+Passo 6: Criar painel de multas
+Passo 7: Adicionar ações admin (criar / deletar / status)
+Passo 8: Refinar UX (loading, erros, filtros)

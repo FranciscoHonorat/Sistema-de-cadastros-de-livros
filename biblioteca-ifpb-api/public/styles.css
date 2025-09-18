@@ -1,4 +1,4 @@
-        :root {
+:root {
             --primary-color: #2c3e50;
             --secondary-color: #3498db;
             --accent-color: #e74c3c;
@@ -18,6 +18,8 @@
         body {
             background-color: #f5f5f5;
             color: #333;
+            font-family: Arial, sans-serif;
+            margin: 0;
         }
         
         .container {
@@ -27,9 +29,9 @@
         }
         
         header {
-            background-color: var(--primary-color);
+            background: #202a44;
             color: white;
-            padding: 1rem;
+            padding: 10px 16px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -85,20 +87,19 @@
         .modal {
             display: none;
             position: fixed;
-            top: 0;
-            left: 0;
+            inset: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0,0,0,0.5);
+            background: rgba(0,0,0,0.4);
             justify-content: center;
             align-items: center;
             z-index: 1000;
         }
         
         .modal-content {
-            background-color: white;
-            padding: 2rem;
-            border-radius: 8px;
+            background: #fff;
+            padding: 20px;
+            border-radius: 4px;
             width: 90%;
             max-width: 500px;
             box-shadow: 0 4px 20px rgba(0,0,0,0.15);
@@ -257,6 +258,40 @@
         
         .section.active {
             display: block;
+        }
+        
+        .feedback {
+            margin: 10px 0;
+            min-height: 20px;
+        }
+        
+        .feedback.success {
+            color: green;
+        }
+        
+        .feedback.error {
+            color: #c00;
+        }
+        
+        .book-row, .loan-row, .fine-row, .admin-book-row {
+            border: 1px solid #ccc;
+            padding: 6px;
+            margin: 4px 0;
+            background: #fafafa;
+        }
+        
+        .book-row.is-busy {
+            opacity: 0.6;
+        }
+        
+        .status {
+            margin-left: 8px;
+            font-size: 0.85em;
+        }
+        
+        .late {
+            color: #d00;
+            font-weight: bold;
         }
         
         @media (max-width: 768px) {

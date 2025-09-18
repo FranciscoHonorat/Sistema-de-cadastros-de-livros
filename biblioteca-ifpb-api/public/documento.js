@@ -1,115 +1,68 @@
-// Função de login conectada ao backend
+console.log('[INIT] documento.js carregado');
 
-/* 
-Função de conexão com o backend para autenticação do usuário,
-Utilizamos a função fetch para enviar os dados de login e receber o token JWT.
-*/
-async function login(email, password) {
-    const response = await fetch('http://localhost:3000/api/auth/login', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ email, password })
-    });
+import { initAdminUI, renderAdminBooks } from './ui/admin.js';
+import { initAuthUI, renderAuthState } from './ui/auth.js';
+import { initBooksUI, renderBooks } from './ui/books.js';
+import { renderFines } from './ui/fines.js';
+import { $, toggle } from './ui/helpers.js';
+import { initLoansUI, renderLoans } from './ui/loans.js';
 
-    const data = await response.json();
-
-    if (response.ok) {
-        localStorage.setItem('token', data.token);
-        alert('Login bem-sucedido!');
-        fecharModal('loginModal');
-        // Aqui você pode atualizar a interface para mostrar área privada
-    } else {
-        alert(data.error || 'Erro no login');
-    }
-}
-
-// Eventos para abrir/fechar modais e submit dos formulários
-document.addEventListener('DOMContentLoaded', function() {
-    // Abrir modal de login
-    const loginBtn = document.getElementById('loginBtn');
-    if (loginBtn) {
-        loginBtn.addEventListener('click', function() {
-            abrirModal('loginModal');
-        });
-    }
-
-    // Abrir modal de registro
-    const registerBtn = document.getElementById('registerBtn');
-    if (registerBtn) {
-        registerBtn.addEventListener('click', function() {
-            abrirModal('registerModal');
-        });
-    }
-
-    // Fechar modais ao clicar fora do conteúdo
-    document.querySelectorAll('.modal').forEach(function(modal) {
-        modal.addEventListener('click', function(e) {
-            if (e.target === modal) {
-                fecharModal(modal.id);
-            }
-        });
-    });
-
-    // Submit do formulário de login
-    const loginForm = document.getElementById('loginForm');
-    if (loginForm) {
-        loginForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            login(email, password);
-        });
-    }
-
-    // Submit do formulário de registro
-    const registerForm = document.getElementById('registerForm');
-    if (registerForm) {
-        registerForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            const name = document.getElementById('registerName').value;
-            const email = document.getElementById('registerEmail').value;
-            const password = document.getElementById('registerPassword').value;
-            const studentId = document.getElementById('registerStudentId').value;
-            cadastrarUsuario({ name, email, password, studentId });
-        });
-    }
+window.addEventListener('error', (e) => {
+  console.error('[GLOBAL ERROR]', e.message, e.filename, e.lineno);
 });
 
-function abrirModal(id) {
-    const modal = document.getElementById(id);
-    if (modal) modal.style.display = 'block';
+function showSection(id) {
+  const sections = ['secBooks','secLoans','secFines','secAdmin'];
+  sections.forEach(s => toggle($('#'+s), s === id));
+  console.log('[NAV] seção ativa:', id);
 }
 
-function fecharModal(id) {
-    const modal = document.getElementById(id);
-    if (modal) modal.style.display = 'none';
-}
+document.addEventListener('DOMContentLoaded', () => {
+  console.log('[DOM] pronto');
 
-document.addEventListener('DOMContentLoaded', function() {
-    const loginForm = document.getElementById('loginForm');
-    if (loginForm) {
-        loginForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            login(email, password);
-        });
+  initAuthUI({
+    onAuthChange: () => {
+      console.log('[AUTH] changed');
+      renderAuthState();
+      renderBooks();
+      renderLoans();
+      renderFines();
+      renderAdminBooks();
     }
+  });
+
+  initBooksUI();
+  initLoansUI();
+  initAdminUI();
+
+  // Listeners de navegação
+  $('#navBooks')?.addEventListener('click', () => {
+    console.log('[CLICK] Livros');
+    showSection('secBooks');
+    renderBooks();
+  });
+  $('#navLoans')?.addEventListener('click', () => {
+    console.log('[CLICK] Empréstimos');
+    showSection('secLoans');
+    renderLoans();
+  });
+  $('#navFines')?.addEventListener('click', () => {
+    console.log('[CLICK] Multas');
+    showSection('secFines');
+    renderFines();
+  });
+  $('#navAdmin')?.addEventListener('click', () => {
+    console.log('[CLICK] Admin');
+    showSection('secAdmin');
+    renderAdminBooks();
+  });
+
+  // Eventos globais
+  document.addEventListener('refreshBooks', renderBooks);
+  document.addEventListener('refreshLoans', renderLoans);
+
+  // Primeira render
+  showSection('secBooks'); // Exibir livros inicialmente
+  renderAuthState();
+  renderBooks();
 });
-
-async function cadastrarUsuario({ name, email, password, studentId }) {
-    const response = await fetch('http://localhost:3000/api/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, password, studentId })
-    });
-    const data = await response.json();
-    if (response.ok) {
-        alert('Cadastro realizado com sucesso!');
-        fecharModal('registerModal');
-    } else {
-        alert(data.error || 'Erro no cadastro');
-    }
-}

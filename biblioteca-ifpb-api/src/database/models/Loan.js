@@ -110,7 +110,7 @@ Sugestão: Pense em como garantir que dueDate seja definido antes das validaçõ
     sequelize,
     modelName: 'Loan',
     tableName: 'loans',
-    paranoid: true,
+    paranoid: false,
     hooks: {
       beforeCreate: (loan) => {
         // Se a data de devolução não for fornecida, define como 30 dias após loanDate
