@@ -1,44 +1,49 @@
 const express = require('express');
 const router = express.Router();
-const BookController = require('../controllers/BookController');
-const { authenticateToken, requireAdmin } = require('../middLeware/auth');
+const BookController = require('../controllers/BookController.js');
+const { authenticateToken, requireAdmin } = require('../middLeware/auth.js');
 
 /**
  * @swagger
- * /api/books:
+ * tags:
+ *   name: Books
+ *   description: Gestão de livros
+ */
+
+/**
+ * @swagger
+ * /books:
  *   get:
  *     summary: Listar todos os livros
  *     tags: [Books]
  *     parameters:
  *       - in: query
  *         name: category
- *         schema:
- *           type: string
- *         description: Filtrar por categoria
+ *         schema: { type: string }
  *       - in: query
  *         name: author
- *         schema:
- *           type: string
- *         description: Filtrar por autor
+ *         schema: { type: string }
  *       - in: query
  *         name: title
- *         schema:
- *           type: string
- *         description: Filtrar por título
+ *         schema: { type: string }
  *       - in: query
  *         name: status
- *         schema:
- *           type: string
- *         description: Filtrar por status
+ *         schema: { type: string }
  *     responses:
  *       200:
  *         description: Lista de livros
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Book'
  */
 router.get('/', BookController.getAllBooks);
 
 /**
  * @swagger
- * /api/books/available:
+ * /books/available:
  *   get:
  *     summary: Listar livros disponíveis
  *     tags: [Books]
@@ -50,7 +55,7 @@ router.get('/available', BookController.getAvailableBooks);
 
 /**
  * @swagger
- * /api/books/stats:
+ * /books/stats:
  *   get:
  *     summary: Obter estatísticas dos livros
  *     tags: [Books]
@@ -58,13 +63,15 @@ router.get('/available', BookController.getAvailableBooks);
  *       - bearerAuth: []
  *     responses:
  *       200:
- *         description: Estatísticas dos livros
+ *         description: Estatísticas agregadas
+ *       403:
+ *         description: Não autorizado
  */
 router.get('/stats', authenticateToken, requireAdmin, BookController.getBookStats);
 
 /**
  * @swagger
- * /api/books/category/{category}:
+ * /books/category/{category}:
  *   get:
  *     summary: Listar livros por categoria
  *     tags: [Books]
@@ -76,13 +83,15 @@ router.get('/stats', authenticateToken, requireAdmin, BookController.getBookStat
  *           type: string
  *     responses:
  *       200:
- *         description: Lista de livros da categoria
+ *         description: Lista filtrada
+ *       404:
+ *         description: Nenhum livro encontrado na categoria
  */
 router.get('/category/:category', BookController.getBooksByCategory);
 
 /**
  * @swagger
- * /api/books/{id}:
+ * /books/{id}:
  *   get:
  *     summary: Buscar livro por ID
  *     tags: [Books]
@@ -95,6 +104,10 @@ router.get('/category/:category', BookController.getBooksByCategory);
  *     responses:
  *       200:
  *         description: Livro encontrado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Book'
  *       404:
  *         description: Livro não encontrado
  */
@@ -102,9 +115,9 @@ router.get('/:id', BookController.getBookById);
 
 /**
  * @swagger
- * /api/books:
+ * /books:
  *   post:
- *     summary: Criar novo livro (apenas admin)
+ *     summary: Criar novo livro (admin)
  *     tags: [Books]
  *     security:
  *       - bearerAuth: []
@@ -113,35 +126,26 @@ router.get('/:id', BookController.getBookById);
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             required:
- *               - title
- *               - author
- *               - publisher
- *               - category
- *             properties:
- *               title:
- *                 type: string
- *               author:
- *                 type: string
- *               publisher:
- *                 type: string
- *               category:
- *                 type: string
- *               version:
- *                 type: number
- *                 default: 1.0
+ *             $ref: '#/components/schemas/CreateBookInput'
  *     responses:
  *       201:
- *         description: Livro criado com sucesso
+ *         description: Livro criado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Book'
+ *       400:
+ *         description: Dados inválidos
+ *       403:
+ *         description: Não autorizado
  */
 router.post('/', authenticateToken, requireAdmin, BookController.createBook);
 
 /**
  * @swagger
- * /api/books/{id}:
+ * /books/{id}:
  *   put:
- *     summary: Atualizar livro (apenas admin)
+ *     summary: Atualizar livro (admin)
  *     tags: [Books]
  *     security:
  *       - bearerAuth: []
@@ -149,8 +153,7 @@ router.post('/', authenticateToken, requireAdmin, BookController.createBook);
  *       - in: path
  *         name: id
  *         required: true
- *         schema:
- *           type: integer
+ *         schema: { type: integer }
  *     requestBody:
  *       required: true
  *       content:
@@ -158,25 +161,24 @@ router.post('/', authenticateToken, requireAdmin, BookController.createBook);
  *           schema:
  *             type: object
  *             properties:
- *               title:
- *                 type: string
- *               author:
- *                 type: string
- *               publisher:
- *                 type: string
- *               category:
- *                 type: string
- *               version:
- *                 type: number
+ *               title: { type: string }
+ *               author: { type: string }
+ *               publisher: { type: string }
+ *               category: { type: string }
+ *               version: { type: number }
  *     responses:
  *       200:
- *         description: Livro atualizado com sucesso
+ *         description: Livro atualizado
+ *       400:
+ *         description: Dados inválidos
+ *       404:
+ *         description: Livro não encontrado
  */
 router.put('/:id', authenticateToken, requireAdmin, BookController.updateBook);
 
 /**
  * @swagger
- * /api/books/{id}/status:
+ * /books/{id}/status:
  *   patch:
  *     summary: Atualizar status do livro
  *     tags: [Books]
@@ -186,31 +188,33 @@ router.put('/:id', authenticateToken, requireAdmin, BookController.updateBook);
  *       - in: path
  *         name: id
  *         required: true
- *         schema:
- *           type: integer
+ *         schema: { type: integer }
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
  *             type: object
- *             required:
- *               - status
+ *             required: [status]
  *             properties:
  *               status:
  *                 type: string
  *                 enum: [Disponível, Emprestado, Reservado, Indisponível]
  *     responses:
  *       200:
- *         description: Status atualizado com sucesso
+ *         description: Status atualizado
+ *       400:
+ *         description: Status inválido
+ *       404:
+ *         description: Livro não encontrado
  */
 router.patch('/:id/status', authenticateToken, BookController.updateBookStatus);
 
 /**
  * @swagger
- * /api/books/{id}:
+ * /books/{id}:
  *   delete:
- *     summary: Deletar livro (apenas admin)
+ *     summary: Deletar livro (admin)
  *     tags: [Books]
  *     security:
  *       - bearerAuth: []
@@ -218,11 +222,12 @@ router.patch('/:id/status', authenticateToken, BookController.updateBookStatus);
  *       - in: path
  *         name: id
  *         required: true
- *         schema:
- *           type: integer
+ *         schema: { type: integer }
  *     responses:
  *       200:
- *         description: Livro deletado com sucesso
+ *         description: Removido
+ *       404:
+ *         description: Livro não encontrado
  */
 router.delete('/:id', authenticateToken, requireAdmin, BookController.deleteBook);
 

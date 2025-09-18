@@ -1,85 +1,113 @@
-const { Loan, Book, User } = require('../models');
+const { Loan, Book, Fine, sequelize } = require('../database/models');
 const { Op } = require('sequelize');
 
 class LoanServices {
-    async getAllLoans(filters = {}) {
-        try {
-            const where = {};
 
-            //Filtro por status
-            if (filters.status) {
-                where.status = filters.status;
-            }
-
-            // Filtro por data de empréstimo
-            if (filters.loanDate) {
-                where.loanDate = {
-                    [Op.gte]: new Date(filters.loanDate)
-                };
-                if (filters.endDate) {
-                    where.loanDate[Op.lte] = new Date(filters.endDate);
-                }
-            }
-            const loans = await Loan.findAll({
-                where,
-                include: {
-                    model: Book,
-                    as: 'book',
-                    attributes: [ 'id', 'title', 'author']
-                }
-            });
-    
-            return loans;
-
-        } catch (error) {
-            console.error('Erro ao buscar empréstimos: ', error);
-            throw new Error('Erro ao buscar empréstimos');
-        }
-
+  async createLoan(userId, bookId, loanPeriodDays = 30) {
+    const book = await Book.findByPk(bookId);
+    if (!book) throw new Error('Livro não encontrado');
+    if (book.status && book.status !== 'Disponível') {
+      throw new Error('Livro não está disponível');
     }
 
-    async createLoan({ bookId, userId}) {
-        try {
-            const book = await Book.findByPk(bookId);
-            if (!book) {
-                throw new Error('Livro não encontrado');
-            }
-            if (book.status !== 'available') {
-                throw new Error('Livro não está disponível para empréstimo');
-            }
+    const activeCount = await Loan.count({
+      where: { userId, status: { [Op.in]: ['Active', 'Overdue'] } }
+    });
+    if (activeCount >= 3) throw new Error('Limite de empréstimos atingido (3)');
 
-            const user = await User.findByPk(userId);
+    const loanDate = new Date();
+    const dueDate = new Date(loanDate);
+    dueDate.setDate(dueDate.getDate() + loanPeriodDays);
 
-            if (!user) {
-                throw new Error('Usuário não encontrado');
-            }
+    const t = await sequelize.transaction();
+    try {
+      const loan = await Loan.create({
+        userId,
+        bookId,
+        loanDate,
+        dueDate,
+        status: 'Active'
+      }, { transaction: t });
 
-            const activeLoansCount = await Loan.count( {
-                where: {
-                    userId,
-                    status: 'ongoing',
-                    bookId: { [Op.ne]: bookId }
-                }
-            });
+      await book.update({ status: 'Emprestado' }, { transaction: t });
 
-            if (activeLoansCount >= user.maxLoans) {
-                throw new Error('Limite de empréstimos ativos atingido');
-            }
-
-            const loan = await Loan.create({
-                bookId,
-                userId,
-                status: 'ongoing',
-                loanDate: new Date()
-            });
-
-            book.status = 'unavailable';
-            await book.save();
-
-            return loan;
-        } catch (error) {
-            console.error('Erro ao criar empréstimo: ', error);
-            throw new Error(error.message || 'Erro ao criar empréstimo');
-        }
+      await t.commit();
+      return loan;
+    } catch (err) {
+      await t.rollback();
+      throw new Error('Erro ao criar empréstimo: ' + err.message);
     }
+  }
+
+  async updateLoanStatus(loanId, status) {
+    const loan = await Loan.findByPk(loanId);
+    if (!loan || !['Active','Overdue'].includes(loan.status)) {
+      throw new Error('Emprestimo não encontrado ou já foi devolvido');
+    }
+    await loan.update({ status });
+    return loan;
+  }
+
+  async getOverdueLoans() {
+    const now = new Date();
+    return Loan.findAll({
+      where: {
+        dueDate: { [Op.lt]: now },
+        status: { [Op.in]: ['Active','Overdue'] }
+      },
+      include: [{ model: Book, attributes: ['id','title','author'] }]
+    });
+  }
+
+  async returnLoan(loanId) {
+    const loan = await Loan.findOne({
+      where: { id: loanId, status: { [Op.in]: ['Active','Overdue'] } },
+      include: [{ model: Book }]
+    });
+    if (!loan) throw new Error('Empréstimo não encontrado');
+
+    const returnDate = new Date();
+    let fineAmount = 0;
+    if (returnDate > loan.dueDate) {
+      const daysLate = Math.ceil((returnDate - loan.dueDate) / 86400000);
+      fineAmount = daysLate * 0.5;
+    }
+
+    const t = await sequelize.transaction();
+    try {
+      await loan.update({ returnDate, status: 'Returned' }, { transaction: t });
+      if (loan.Book) {
+        await loan.Book.update({ status: 'Disponível' }, { transaction: t });
+      }
+      let fine = null;
+      if (fineAmount > 0) {
+        fine = await Fine.create({
+          userId: loan.userId,
+            loanId: loan.id,
+            amount: fineAmount,
+            status: 'Pending'
+        }, { transaction: t });
+      }
+      await t.commit();
+      return { loan, fine };
+    } catch (err) {
+      await t.rollback();
+      throw new Error('Erro ao devolver: ' + err.message);
+    }
+  }
+
+  async getUserLoans(userId, status) {
+    const where = { userId };
+    if (status) where.status = status;
+    return Loan.findAll({
+      where,
+      include: [
+        { model: Book, attributes: ['id','title','author'] },
+        { model: Fine, required: false }
+      ],
+      order: [['loanDate','DESC']]
+    });
+  }
 }
+
+module.exports = LoanServices;
