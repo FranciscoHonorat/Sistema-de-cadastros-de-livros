@@ -1,7 +1,8 @@
-const express = require('express');
-const router = express.Router();
-const BookController = require('../controllers/BookController.js');
-const { authenticateToken, requireAdmin } = require('../middLeware/auth.js');
+const { Router } = require('express');
+const BookController = require('../controllers/BookController');
+const { authenticateToken, isAdmin } = require('../middleware/auth');
+
+const router = Router();
 
 /**
  * @swagger
@@ -39,7 +40,7 @@ const { authenticateToken, requireAdmin } = require('../middLeware/auth.js');
  *               items:
  *                 $ref: '#/components/schemas/Book'
  */
-router.get('/', BookController.getAllBooks);
+router.get('/books', BookController.getAllBooks);
 
 /**
  * @swagger
@@ -51,7 +52,7 @@ router.get('/', BookController.getAllBooks);
  *       200:
  *         description: Lista de livros disponíveis
  */
-router.get('/available', BookController.getAvailableBooks);
+router.get('/books/available', BookController.getAvailableBooks);
 
 /**
  * @swagger
@@ -67,7 +68,7 @@ router.get('/available', BookController.getAvailableBooks);
  *       403:
  *         description: Não autorizado
  */
-router.get('/stats', authenticateToken, requireAdmin, BookController.getBookStats);
+router.get('/books/stats', authenticateToken, requireAdmin, BookController.getBookStats);
 
 /**
  * @swagger
@@ -87,7 +88,7 @@ router.get('/stats', authenticateToken, requireAdmin, BookController.getBookStat
  *       404:
  *         description: Nenhum livro encontrado na categoria
  */
-router.get('/category/:category', BookController.getBooksByCategory);
+router.get('/books/category/:category', BookController.getBooksByCategory);
 
 /**
  * @swagger
@@ -111,7 +112,7 @@ router.get('/category/:category', BookController.getBooksByCategory);
  *       404:
  *         description: Livro não encontrado
  */
-router.get('/:id', BookController.getBookById);
+router.get('/books/:id', BookController.getBookById);
 
 /**
  * @swagger
@@ -139,7 +140,7 @@ router.get('/:id', BookController.getBookById);
  *       403:
  *         description: Não autorizado
  */
-router.post('/', authenticateToken, requireAdmin, BookController.createBook);
+router.post('/books', authenticateToken, isAdmin, BookController.createBook);
 
 /**
  * @swagger
@@ -174,7 +175,7 @@ router.post('/', authenticateToken, requireAdmin, BookController.createBook);
  *       404:
  *         description: Livro não encontrado
  */
-router.put('/:id', authenticateToken, requireAdmin, BookController.updateBook);
+router.put('/books/:id', authenticateToken, isAdmin, BookController.updateBook);
 
 /**
  * @swagger
@@ -208,7 +209,7 @@ router.put('/:id', authenticateToken, requireAdmin, BookController.updateBook);
  *       404:
  *         description: Livro não encontrado
  */
-router.patch('/:id/status', authenticateToken, BookController.updateBookStatus);
+router.patch('/books/:id/status', authenticateToken, BookController.updateBookStatus);
 
 /**
  * @swagger
@@ -229,6 +230,6 @@ router.patch('/:id/status', authenticateToken, BookController.updateBookStatus);
  *       404:
  *         description: Livro não encontrado
  */
-router.delete('/:id', authenticateToken, requireAdmin, BookController.deleteBook);
+router.delete('/books/:id', authenticateToken, isAdmin, BookController.deleteBook);
 
 module.exports = router;

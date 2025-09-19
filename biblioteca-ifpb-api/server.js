@@ -1,8 +1,10 @@
 const express = require('express');
 const routes = require('./src/routes');
-const { authenticateToken } = require('../biblioteca-ifpb-api/src/middLeware/auth.js');
+// CORREÇÃO: caminho da pasta renomeada
+const { authenticateToken } = require('./src/middleware/auth.js');
 const path = require('path');
 const { sequelize, Book, User, Loan, Fine } = require('./src/database/models');
+const errorHandler = require('./src/middleware/errorHandler'); // <-- IMPORTAR
 
 // Swagger
 const swaggerJsdoc = require('swagger-jsdoc');
@@ -157,6 +159,9 @@ app.post('/api/_debug/reindex-books', async (req, res) => {
     res.status(500).json({ message: e.message });
   }
 });
+
+// Middleware de tratamento de erros (deve ser o último)
+app.use(errorHandler);
 
 // Inicialização
 const PORT = process.env.PORT || 3000;
