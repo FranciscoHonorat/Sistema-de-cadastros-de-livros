@@ -85,6 +85,19 @@ module.exports = (sequelize, DataTypes) => {
         }
       }
     },
+    // Novas colunas para busca
+    titleSearch: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    authorSearch: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    categorySearch: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
 
   }, {
     sequelize,
@@ -92,5 +105,24 @@ module.exports = (sequelize, DataTypes) => {
     tableName: 'books',
     paranoid: false,
   });
+
+  // Função para normalizar texto para busca (remove acentos, minúsculas)
+  const normalizeForSearch = (value) =>
+    String(value || '')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .trim();
+
+  // Função que preenche os campos de busca
+  const setSearchFields = (book) => {
+    book.titleSearch = normalizeForSearch(book.title);
+    book.authorSearch = normalizeForSearch(book.author);
+    book.categorySearch = normalizeForSearch(book.category);
+  };
+
+  // Hook para preencher os campos antes de validar/salvar
+  Book.addHook('beforeValidate', setSearchFields);
+
   return Book;
 };

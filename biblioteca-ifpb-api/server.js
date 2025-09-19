@@ -2,6 +2,7 @@ const express = require('express');
 const routes = require('./src/routes');
 const { authenticateToken } = require('../biblioteca-ifpb-api/src/middLeware/auth.js');
 const path = require('path');
+const { sequelize, Book, User, Loan, Fine } = require('./src/database/models');
 
 // Swagger
 const swaggerJsdoc = require('swagger-jsdoc');
@@ -121,6 +122,41 @@ app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(swaggerSpecs));
 
 // Rotas
 app.use('/api', routes);
+
+app.get('/api/_debug/db', async (req, res) => {
+  try {
+    const info = {
+      dialect: sequelize.getDialect(),
+      storage: sequelize.options.storage, // caminho absoluto do arquivo sqlite em uso
+      counts: {
+        books: await Book.count(),
+        users: await User.count(),
+        loans: await Loan.count(),
+        fines: await Fine.count()
+      }
+    };
+    res.json(info);
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ message: e.message });
+  }
+});
+
+app.post('/api/_debug/reindex-books', async (req, res) => {
+  try {
+    const normalize = (v) => String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+    const books = await Book.findAll();
+    for (const b of books) {
+      b.titleSearch = normalize(b.title);
+      b.authorSearch = normalize(b.author);
+      b.categorySearch = normalize(b.category);
+      await b.save({ hooks: false }); // Salva sem rodar o hook de novo
+    }
+    res.json({ message: `Reindexados ${books.length} livros.` });
+  } catch (e) {
+    res.status(500).json({ message: e.message });
+  }
+});
 
 // Inicialização
 const PORT = process.env.PORT || 3000;

@@ -1,6 +1,17 @@
 const BookServices = require('../services/BookServices');
 
 class BookController {
+  async list(req, res) {
+    try {
+      // ADICIONE ESTE LOG
+      console.log('[Controller] Recebidos filtros:', req.query);
+      const data = await BookServices.getAllBooks(req.query);
+      return res.json(data);
+    } catch (e) {
+      console.error(e);
+      return res.status(500).json({ message: `Erro ao buscar livros: ${e.message}` });
+    }
+  }
   
   // Listar todos os livros
   async getAllBooks(req, res) {
