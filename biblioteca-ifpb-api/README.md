@@ -1,116 +1,287 @@
-O que eu quero construir?
-    vou construir uma API que funciona com um sistema de biblioteca do ifpb, onde vamos ter os alunos cadastrados com seus ID,
-    ele vai ter um sistema de login básico onde cada usuário vai ter um cadastro em um banco de dados SQLite, depois, ele vai pode alugar os livros e no sistema vai gerar um data de devolução dos livros, que vai ser gerada a partir do momento em que ele pega o livro tendo o equivalente a 30 dais ou 90 dias para devolução do livro e passando desse prazo, ele vai receber um multa equivalente a 0,5 reais por dia de atraso.
+# Biblioteca IFPB — API
 
-    Parte do aluno:
-    - Sistema de login 
-    - Sistema de aluguel de livros
-    - Sistema de multa por atraso.
+API RESTful para gerenciamento de livros, usuários, empréstimos e multas da Biblioteca do IFPB.
 
-    Parte do servidor da biblioteca:
-    - Cadastrar livros
-        Organização por categoria, nome, autor e editora.
-    - Atualizar condição do livro:
-        - alugado ou ta disponivel.
-        - Versão atualizada do livro.
-    - Excluir
-        -poderem mantendo o registro apenas apagando completamente.
-    - gerenciar usuarios com livros alugados.
+## Sumário
 
-    Sistema de segurança para cada usuário que entrar e sair, um sistema de login do servidor.
-    Sistema de monitoramento de lista de livros com IA.
+- [Sobre o Projeto](#sobre-o-projeto)
+- [Tecnologias](#tecnologias)
+- [Pré-requisitos](#pré-requisitos)
+- [Instalação](#instalação)
+- [Executando o Servidor](#executando-o-servidor)
+- [Variáveis de Ambiente](#variáveis-de-ambiente)
+- [Estrutura do Projeto](#estrutura-do-projeto)
+- [Endpoints da API](#endpoints-da-api)
+  - [Autenticação](#autenticação)
+  - [Usuários / Perfil](#usuários--perfil)
+  - [Livros](#livros)
+  - [Empréstimos](#empréstimos)
+  - [Administração](#administração)
+- [Autenticação JWT](#autenticação-jwt)
+- [Documentação Swagger](#documentação-swagger)
+- [Regras de Negócio](#regras-de-negócio)
 
-Tecnologias:
+---
 
-    front end: hmtl5, css3, javascript ou angular ou react
-    back end: node.js, express, sqllite, ORM e swagger para documentação da API
-    
-    # Biblioteca IFPB API
+## Sobre o Projeto
 
-API para gerenciamento de livros, usuários, empréstimos e multas da Biblioteca IFPB.
+Sistema de gerenciamento de biblioteca para o IFPB. Permite que alunos façam login, consultem o acervo e realizem empréstimos de livros. Administradores podem cadastrar, atualizar e remover livros, além de gerenciar usuários e acompanhar empréstimos e multas por atraso.
 
-## URL Base
+---
+
+## Tecnologias
+
+| Camada      | Tecnologia                          |
+|-------------|-------------------------------------|
+| Back-end    | Node.js, Express 5                  |
+| Banco de dados | SQLite (via Sequelize ORM)       |
+| Autenticação | JWT (jsonwebtoken) + bcryptjs      |
+| Documentação | Swagger (swagger-jsdoc + swagger-ui-express) |
+| Utilitários | nodemon (dev)                       |
+
+---
+
+## Pré-requisitos
+
+- [Node.js](https://nodejs.org/) v18 ou superior
+- npm v9 ou superior
+
+---
+
+## Instalação
+
+```bash
+# Clone o repositório
+git clone https://github.com/FranciscoHonorat/Sistema-de-cadastros-de-livros.git
+
+# Entre na pasta do projeto
+cd Sistema-de-cadastros-de-livros/biblioteca-ifpb-api
+
+# Instale as dependências
+npm install
 ```
-http://localhost:3000/api
+
+---
+
+## Executando o Servidor
+
+```bash
+# Modo desenvolvimento (com hot-reload via nodemon)
+npm run dev
+
+# Modo produção
+node server.js
 ```
 
-## Endpoints Principais
+O servidor será iniciado em `http://localhost:3000`.
+
+---
+
+## Variáveis de Ambiente
+
+Crie um arquivo `.env` na raiz de `biblioteca-ifpb-api/` com as seguintes variáveis (opcional — o projeto usa valores padrão quando não definidas):
+
+```env
+PORT=3000
+JWT_SECRET=sua_chave_secreta
+```
+
+---
+
+## Estrutura do Projeto
+
+```
+biblioteca-ifpb-api/
+├── public/                  # Arquivos estáticos (front-end)
+├── src/
+│   ├── app.js
+│   ├── controllers/         # Lógica dos endpoints
+│   │   ├── AdminController.js
+│   │   ├── AuthController.js
+│   │   ├── BookController.js
+│   │   └── LoanController.js
+│   ├── database/
+│   │   ├── config/          # Configuração do Sequelize
+│   │   ├── migrations/
+│   │   ├── models/          # Modelos: Book, User, Loan, Fine
+│   │   └── seeders/
+│   ├── middleware/
+│   │   ├── auth.js          # Verificação de token JWT e permissões
+│   │   └── errorHandler.js
+│   ├── routes/
+│   │   ├── index.js
+│   │   ├── authRoute.js
+│   │   ├── bookRoute.js
+│   │   ├── loansRoute.js
+│   │   └── adminRoute.js
+│   ├── services/
+│   └── utils/
+└── server.js                # Ponto de entrada da aplicação
+```
+
+---
+
+## Endpoints da API
+
+**URL Base:** `http://localhost:3000/api`
 
 ### Autenticação
-#### Login
-- **POST** `/auth/login`
-- **Body:**
-  ```json
-  {
-    "email": "usuario@email.com",
-    "password": "senha"
-  }
-  ```
-- **Resposta de sucesso:**
-  ```json
-  {
-    "token": "jwt_token"
-  }
-  ```
+
+| Método | Endpoint                  | Descrição               | Auth |
+|--------|---------------------------|-------------------------|------|
+| POST   | `/auth/login`             | Realizar login          | Não  |
+| POST   | `/auth/login/rest-password` | Solicitar reset de senha | Não |
+
+**Exemplo — Login:**
+```http
+POST /api/auth/login
+Content-Type: application/json
+
+{
+  "email": "usuario@email.com",
+  "password": "senha123"
+}
+```
+Resposta:
+```json
+{
+  "token": "<jwt_token>"
+}
+```
+
+---
+
+### Usuários / Perfil
+
+| Método | Endpoint              | Descrição                        | Auth  |
+|--------|-----------------------|----------------------------------|-------|
+| POST   | `/admin/register`     | Cadastrar novo usuário           | Não   |
+| GET    | `/admin/profile/:id`  | Obter perfil do usuário          | Sim   |
+| PUT    | `/admin/profile/:id`  | Atualizar perfil do usuário      | Sim   |
+| GET    | `/admin/users`        | Listar todos os usuários (admin) | Admin |
+
+---
 
 ### Livros
-#### Listar livros
-- **GET** `/books`
-- **Resposta:**
-  ```json
-  [
-    {
-      "id": 1,
-      "titulo": "Livro Exemplo",
-      "autor": "Autor"
-    }
-  ]
-  ```
 
-#### Adicionar livro (admin)
-- **POST** `/books`
-- **Headers:**
-  - Authorization: Bearer `token`
-- **Body:**
-  ```json
-  {
-    "titulo": "Novo Livro",
-    "autor": "Autor",
-    "categoria": "Categoria",
-    "editora": "Editora",
-    "versao": "1.0"
-  }
-  ```
+| Método | Endpoint                      | Descrição                           | Auth  |
+|--------|-------------------------------|-------------------------------------|-------|
+| GET    | `/books`                      | Listar todos os livros (com filtros)| Não   |
+| GET    | `/books/available`            | Listar livros disponíveis           | Não   |
+| GET    | `/books/category/:category`   | Listar livros por categoria         | Não   |
+| GET    | `/books/stats`                | Estatísticas do acervo (admin)      | Admin |
+| GET    | `/books/:id`                  | Buscar livro por ID                 | Não   |
+| POST   | `/books`                      | Cadastrar novo livro (admin)        | Admin |
+| PUT    | `/books/:id`                  | Atualizar livro (admin)             | Admin |
+| PATCH  | `/books/:id/status`           | Atualizar status do livro           | Sim   |
+| DELETE | `/books/:id`                  | Remover livro (admin)               | Admin |
+
+**Filtros disponíveis em `GET /books`:**
+
+| Parâmetro  | Tipo   | Descrição                            |
+|------------|--------|--------------------------------------|
+| `title`    | string | Filtrar por título                   |
+| `author`   | string | Filtrar por autor                    |
+| `category` | string | Filtrar por categoria                |
+| `status`   | string | Filtrar por status (`Disponível`, `Emprestado`, `Reservado`, `Indisponível`) |
+
+**Exemplo — Cadastrar livro (admin):**
+```http
+POST /api/books
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "title": "Clean Code",
+  "author": "Robert C. Martin",
+  "publisher": "Alta Books",
+  "category": "Engenharia de Software",
+  "version": 1.0
+}
+```
+
+**Status válidos para `PATCH /books/:id/status`:**
+```json
+{ "status": "Disponível" }
+```
+Opções: `Disponível`, `Emprestado`, `Reservado`, `Indisponível`
+
+---
 
 ### Empréstimos
-#### Listar empréstimos do usuário
-- **GET** `/loans`
-- **Headers:**
-  - Authorization: Bearer `token`
 
-### Multas
-#### Listar multas do usuário
-- **GET** `/fines`
-- **Headers:**
-  - Authorization: Bearer `token`
+| Método | Endpoint               | Descrição                                      | Auth  |
+|--------|------------------------|------------------------------------------------|-------|
+| POST   | `/loans`               | Criar novo empréstimo                          | Sim   |
+| GET    | `/loans`               | Listar empréstimos do usuário autenticado      | Sim   |
+| PATCH  | `/loans/:id/return`    | Registrar devolução do livro                   | Sim   |
+| GET    | `/loans/admin/all`     | Listar todos os empréstimos — paginado (admin) | Admin |
+| GET    | `/loans/admin/overdue` | Listar empréstimos em atraso (admin)           | Admin |
 
-## Autenticação
-Alguns endpoints exigem autenticação JWT. Envie o token no header:
+**Exemplo — Criar empréstimo:**
+```http
+POST /api/loans
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "bookId": 1,
+  "loanPeriodDays": 30
+}
 ```
-Authorization: Bearer seu_token
+
+**Filtros disponíveis em `GET /loans`:**
+
+| Parâmetro | Tipo   | Descrição                                  |
+|-----------|--------|--------------------------------------------|
+| `status`  | string | `Active`, `Overdue`, `Returned`            |
+
+---
+
+### Administração
+
+Os endpoints de administração exigem autenticação com um usuário de role `admin`.
+
+---
+
+## Autenticação JWT
+
+Endpoints protegidos exigem o token JWT no cabeçalho da requisição:
+
+```
+Authorization: Bearer <seu_token>
 ```
 
-## Exemplo de uso com fetch
+O token é obtido no endpoint `POST /api/auth/login`.
+
+**Exemplo com `fetch`:**
 ```js
-fetch('http://localhost:3000/api/books', {
-  headers: { 'Authorization': 'Bearer SEU_TOKEN' }
-})
-  .then(res => res.json())
-  .then(data => console.log(data));
+const response = await fetch('http://localhost:3000/api/books', {
+  headers: {
+    'Authorization': 'Bearer SEU_TOKEN'
+  }
+});
+const livros = await response.json();
+console.log(livros);
 ```
 
-## Observações
-- Para mais detalhes, acesse a documentação Swagger em: `http://localhost:3000/api-docs`
-- Apenas admins podem adicionar livros e gerenciar usuários.
+---
+
+## Documentação Swagger
+
+A documentação interativa da API está disponível em:
+
+```
+http://localhost:3000/api-docs
+```
+
+---
+
+## Regras de Negócio
+
+- **Empréstimos:** O prazo de devolução é configurável (padrão: 30 dias). Também é aceito o período de 90 dias.
+- **Multas:** Após o vencimento do prazo, é gerada automaticamente uma multa de **R$ 0,50 por dia de atraso**.
+- **Livros:** Apenas administradores podem cadastrar, editar e remover livros do acervo.
+- **Usuários:** O cadastro de novos usuários é aberto. O gerenciamento completo da lista de usuários é restrito a administradores.
 
 
